@@ -20,3 +20,5 @@ Route::get('/file', function() {
 });
 
 Route::post('files/people', 'UploadController@file');
+
+Route::get('debug', 'FilesController@debug');

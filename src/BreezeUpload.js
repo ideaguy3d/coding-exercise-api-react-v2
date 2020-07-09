@@ -33,6 +33,7 @@ class BreezeUpload1stAttempt extends Component {
     render() {
         return (
             <form>
+                <p>Upload the CSV of people data</p>
                 <input type="file" onChange={this.fileSelectedHandler} name="people_file"/>
                 <button onClick={this.fileUploadHandler}>upload</button>
             </form>
