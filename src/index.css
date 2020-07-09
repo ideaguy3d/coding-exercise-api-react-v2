@@ -11,3 +11,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+form.breeze.ui.form {
+    margin: auto;
+}
+
+.field > .ui.button {
+    font-size: 1.14rem;
+}
+
+.breeze.ui.icon.header:first-child {
+    margin-top: 2.5%;
+}

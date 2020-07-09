@@ -1,4 +1,7 @@
 <?php
+declare(strict_types=1);
+
+use Illuminate\Http\Request;
 
 /*
 |--------------------------------------------------------------------------
@@ -10,3 +13,10 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+
+Route::get('/file', function() {
+    Log::info('_> rendering file upload view');
+    return view('file-practice');
+});
+
+Route::post('files/people', 'UploadController@file');
