@@ -68,6 +68,8 @@ class GroupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id) {
-        //
+        $group = Group::findOrFail($id);
+        $group->delete();
+        return response()->json(null, 204);
     }
 }
