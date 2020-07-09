@@ -11,7 +11,7 @@ use App\Models\Person;
 
 class PeopleController extends Controller
 {
-    /**
+    /**GET
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -21,17 +21,7 @@ class PeopleController extends Controller
         return new PeopleCollection(Person::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
+    /** CREATE
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -53,7 +43,7 @@ class PeopleController extends Controller
             ->setStatusCode(201);
     }
 
-    /**
+    /**GET "specific record"
      * Display the specified resource.
      *
      * @param  int  $id
@@ -64,18 +54,7 @@ class PeopleController extends Controller
         return new PersonResource(Person::findOrFail($id));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
+    /**UPDATE
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -90,8 +69,8 @@ class PeopleController extends Controller
         return response()->json(null, 204);
     }
 
-    /**
-     * Remove the specified resource from storage.
+    /**DELETE
+     * Rem  ove the specified resource from storage.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
