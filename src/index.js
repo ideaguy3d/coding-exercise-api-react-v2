@@ -3,13 +3,13 @@ import ReactDOM from "react-dom";
 import { Container, Header } from "semantic-ui-react";
 
 import ResultsList from "./ResultsList";
-import BreezeUpload1stAttempt from "./BreezeUpload1stAttempt";
+import BreezeUpload from "./BreezeUpload";
 import './index.css';
 
 const App = ({ children }) => (
   <Container style={{ margin: 20 }}>
     <Header as="h3"><span role="img" aria-label="logo">⛵️</span> Breeze Church Management </Header>
-    <BreezeUpload1stAttempt/>
+    <BreezeUpload/>
     {children}
   </Container>
 );
