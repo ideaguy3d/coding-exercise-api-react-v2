@@ -30,11 +30,11 @@ class GroupController extends Controller
         //Log::info('__> $request->all() = ' . var_export($request->all(), true));
         // using same technique as PeopleController.php
         $request->validate(['group_name' => 'required|max:255']);
-        $group = \App\Group::create($request->all());
+        $group = Group::create($request->all());
         return (new GroupResource($group))->response()->setStatusCode(201);
     }
     
-    /**
+    /**GET "a specific record"
      * Display the specified resource.
      *
      * @param int $id
@@ -42,7 +42,7 @@ class GroupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id) {
-        //
+        return new GroupResource(Group::findOrFail($id));
     }
     
     /**
