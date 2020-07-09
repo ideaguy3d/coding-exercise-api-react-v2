@@ -28,6 +28,7 @@ class GroupController extends Controller
     public function store(Request $request) {
         //dd($request->all());
         //Log::info('__> $request->all() = ' . var_export($request->all(), true));
+        //log('__> $request->all() = ' . var_export($request->all(), true));
         // using same technique as PeopleController.php
         $request->validate(['group_name' => 'required|max:255']);
         $group = Group::create($request->all());
@@ -54,7 +55,9 @@ class GroupController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id) {
-        //
+        $group = Group::findOrFail($id);
+        $group->update($request->all());
+        return response()->json(null, 204);
     }
     
     /**
