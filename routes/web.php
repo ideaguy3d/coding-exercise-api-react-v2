@@ -22,3 +22,6 @@ Route::get('/file', function() {
 Route::post('files/people', 'UploadController@file');
 
 Route::get('debug', 'FilesController@debug');
+
+Route::get('projects', 'ProjectController@index');
+Route::post('projects', 'ProjectController@store');
