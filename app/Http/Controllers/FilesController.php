@@ -38,7 +38,7 @@ class FilesController extends Controller
     public function store(Request $request) {
         try {
             $fileName = $request->file('people_file')->store('people_files');
-            $this->uploadToDb($fileName);
+            $this->bulkUploadToDb($fileName);
             return $fileName;
         }
         catch(\Throwable $e) {
@@ -91,32 +91,42 @@ class FilesController extends Controller
         //
     }
     
-    private function uploadToDb(string $csvFile) {
+    /**
+     * bulk insert in batches of 1,000 records
+     * @param string $csvFile
+     */
+    private function bulkUploadToDb(string $csvFile) {
         try {
             $data = self::csvToArray($csvFile);
+            $batch = array_chunk($data, 1000);
             $q = 'insert into people (first_name, last_name, email_address, status) values ';
             
             // cache header fow
             $headerRow = $data[0];
-            
-            // construct query, this MIGHT hit a limit IF too many inserts are appened,
-            // in SQL Server only 1,000 inserts are allowed at a time.
-            foreach($data as $i => $datum) {
-                //skip the header row
-                if(0 === $i) continue;
     
-                // deal with column order
-                $datum = array_combine($headerRow, $datum);
-                $first = $datum['first_name'];
-                $last = $datum['last_name'];
-                $email = $datum['email_address'];
-                $status = $datum['status'];
-                $datum = [$first, $last, $email, $status];
-                
-                // wrap in single 'quotes'
-                $datum = array_map(function($e){return "'$e'";}, $datum);
-                
-                $q .= ('(' . implode(', ', $datum) . '),');
+            // OUTER_LOOP: O(n)
+            // space_time_analysis = ~O(1000n)
+            foreach($batch as $data) {
+                // INNER_LOOP_1: O(1000)
+                // construct query, this MIGHT hit a limit IF too many inserts are appened,
+                // in SQL Server only 1,000 inserts are allowed at a time.
+                foreach($data as $i => $datum) {
+                    //skip the header row
+                    if(0 === $i) continue;
+        
+                    // deal with column order
+                    $datum = array_combine($headerRow, $datum);
+                    $first = $datum['first_name'];
+                    $last = $datum['last_name'];
+                    $email = $datum['email_address'];
+                    $status = $datum['status'];
+                    $datum = [$first, $last, $email, $status];
+        
+                    // wrap in single 'quotes'
+                    $datum = array_map(function($e){return "'$e'";}, $datum);
+        
+                    $q .= ('(' . implode(', ', $datum) . '),');
+                }
             }
             
             // remove the trailing ','
@@ -127,6 +137,7 @@ class FilesController extends Controller
             // use a prepared statement
             $pdo->prepare($q)->execute();
             echo '_> successfully inserted data';
+            unset($pdo);
         }
         catch(\Throwable $e) {
             $ml = __METHOD__ . ' line: ' . __LINE__;
@@ -140,7 +151,7 @@ class FilesController extends Controller
         $csvFileName = 'T6UwKU6KnrG3QpSRZJ6SVe7TDcH3YMQAiDJHlOR2.txt';
         
         // manually give a csv file name that got uploaded from React
-        $this->uploadToDb("$fullPathToCsvFolder\\$csvFileName");
+        $this->bulkUploadToDb("$fullPathToCsvFolder\\$csvFileName");
     }
     
     /**
