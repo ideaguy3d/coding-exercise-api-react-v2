@@ -3,29 +3,18 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use PDO;
 
 class FilesController extends Controller
 {
     private static $peopleFilesFolderPath = '../storage/app/people_files/';
     
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index() {
+    private static $groupFilesFolderPath = '../storage/app/group_files/';
     
-    }
+    private static $appFolder = '../storage/app/';
     
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create() {
-        //
-    }
+    private static $tableState;
     
     /**
      * Store a newly created resource in storage.
@@ -37,106 +26,99 @@ class FilesController extends Controller
      */
     public function store(Request $request) {
         try {
-            $fileName = $request->file('people_file')->store('people_files');
-            $this->bulkUploadToDb($fileName);
+            $peopleCsv = $request->file('people_file') ?? null;
+            $groupsCsv = $request->file('groups_file') ?? null;
+            
+            if($peopleCsv) {
+                $fileName = $peopleCsv->store('people_files');
+            }
+            else {
+                $fileName = $groupsCsv->store('group_files');
+            }
+            
+            self::$tableState = self::$appFolder . $fileName;
+            $ml = __METHOD__ . ', line: ' . __LINE__;
+            Log::info(self::$tableState . $ml);
+            $this->bulkUploadToDb();
+            
             return $fileName;
         }
         catch(\Throwable $e) {
-            return "__>> JULIUS ERROR: {$e->getMessage()}";
+            $ml = __METHOD__ . ', line: ' . __LINE__;
+            $message = "__>> JULIUS ERROR: {$e->getMessage()} $ml";
+            Log::info($message);
+            return $message;
         }
     }
     
-    /**
-     * Display the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id) {
-        //
+    public function debug() {
+        // manually give a csv file name that got uploaded from React
+        $csvFileName = 'groups.csv';
+        
+        $this->bulkUploadToDb();
     }
     
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
+     * @return array
      */
-    public function edit($id) {
-        //
+    public static function csvToArray(): array {
+        $csv = [];
+        $count = 0;
+        $csvFile = self::$tableState;
+        
+        Log::info("________> $csvFile \n\n" . __METHOD__ . ' line: ' . __LINE__);
+        
+        if(($handle = fopen($csvFile, 'r')) !== false) {
+            while(($data = fgetcsv($handle, 8096, ",")) !== false) {
+                $csv[$count] = $data;
+                ++$count;
+            }
+            fclose($handle);
+        }
+        
+        return $csv;
     }
     
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id) {
-        //
-    }
-    
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param int $id
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id) {
-        //
-    }
     
     /**
      * bulk insert in batches of 1,000 records
      *
-     * @param string $csvFile
+     * @param string $fileName
+     * @param string|null $table
+     *
+     * @throws \Exception
      */
-    private function bulkUploadToDb(string $csvFile) {
+    private function bulkUploadToDb(): void {
         try {
-            $data = self::csvToArray($csvFile);
+            Log::info(__METHOD__ . ' line: ' . __LINE__);
+            $data = self::csvToArray();
             $batch = array_chunk($data, 1000);
-            $q = 'insert into people (first_name, last_name, email_address, status) values ';
+            $qPeople = 'insert into people (first_name, last_name, email_address, status) values ';;
+            $qGroups = 'insert into groups (group_name) values ';
+            $q = null;
+            $containsPeople = stripos(self::$tableState, 'people') !== false;
             
-            // cache header fow
-            $headerRow = $data[0];
-            
-            // OUTER_LOOP: O(n)
             // space_time_analysis = ~O(1000n)
+            // OUTER_LOOP: O(n)
             foreach($batch as $data) {
-                // INNER_LOOP_1: O(1000)
-                // construct query, this MIGHT hit a limit IF too many inserts are appened,
-                // in SQL Server only 1,000 inserts are allowed at a time.
-                foreach($data as $i => $datum) {
-                    //skip the header row
-                    if(0 === $i) continue;
-                    
-                    // deal with column order
-                    $datum = array_combine($headerRow, $datum);
-                    $first = $datum['first_name'];
-                    $last = $datum['last_name'];
-                    $email = $datum['email_address'];
-                    $status = $datum['status'];
-                    $datum = [$first, $last, $email, $status];
-                    
-                    // wrap in single 'quotes'
-                    $datum = array_map(function($e) { return "'$e'"; }, $datum);
-                    
-                    $q .= ('(' . implode(', ', $datum) . '),');
-                }
+                // INNER_LOOP: O(1000)
+                if($containsPeople) $q = $this->buildInsertQuery($data, $qPeople);
+                else $q = $this->buildInsertQuery($data, $qGroups);
             }
             
-            // remove the trailing ','
-            $q = substr($q, 0, strlen($q) - 1);
+            $ml = __METHOD__ . ' line: ' . __LINE__;
+            $message = "_>  JULIUS_ERROR: the insert query is null ~$ml \n\n $q";
+            Log::info($message);
+            
+            if(is_null($q)) {
+                throw new \Exception($message);
+            }
             
             $pdo = new PDO('mysql:dbname=laravel;host=localhost', 'root', '');
             
             // use a prepared statement
             $pdo->prepare($q)->execute();
+            Log::info(__METHOD__ . ', line: ' . __LINE__);
             echo '_> successfully inserted data';
             unset($pdo);
         }
@@ -147,34 +129,33 @@ class FilesController extends Controller
         }
     }
     
-    public function debug() {
-        $fullPath = 'C:\Users\ideaguy3d\Documents\coding-exercise-api-react-v2\storage\app\people_files';
-        $relPath = self::$peopleFilesFolderPath;
-        $csvFileName = 'debug.txt';
-        $path = $relPath . $csvFileName;
-        //dd($path);
-        // manually give a csv file name that got uploaded from React
-        $this->bulkUploadToDb($csvFileName);
-    }
-    
     /**
-     * @param string $csvFile - the path to the csv
+     * Construct an insert query that will concatenate as many
+     * values as records per batch
      *
-     * @return array
+     * @param $data
+     *
+     * @param $query
+     *
+     * @return string
      */
-    public static function csvToArray(string $csvFile): array {
-        $csv = [];
-        $count = 0;
-        $csvFile = self::$peopleFilesFolderPath . $csvFile;
-        //dd(getcwd() . "\n" . $csvFile);
-        if(($handle = fopen($csvFile, 'r')) !== false) {
-            while(($data = fgetcsv($handle, 8096, ",")) !== false) {
-                $csv[$count] = $data;
-                ++$count;
-            }
-            fclose($handle);
+    private function buildInsertQuery($data, $query): string {
+        // cache header fow
+        $headerRow = $data[0];
+        
+        foreach($data as $i => $datum) {
+            //skip the header row
+            if(0 === $i) continue;
+            // deal with column order
+            $datum = array_combine($headerRow, $datum);
+            // wrap in single 'quotes'
+            foreach($datum as $key => $value) $datum[$key] = "'{$datum[$key]}'";
+            $query .= ('(' . implode(', ', $datum) . '),');
         }
         
-        return $csv;
+        // remove the trailing ','
+        $query = substr($query, 0, strlen($query) - 1);
+        
+        return $query;
     }
 }

@@ -4,7 +4,8 @@ import {Segment, Header, Icon, Form} from 'semantic-ui-react'
 
 class BreezeUpload extends Component {
     state = {
-        selectedFile: null
+        selectedFile: null,
+        csv_type: null
     }
 
     // arrow function for this to ref class scope
@@ -21,21 +22,23 @@ class BreezeUpload extends Component {
         //e.preventDefault();
 
         let formData = new FormData();
-        formData.append('people_file', this.state.selectedFile, this.state.selectedFile.name);
+        let inputName = `${this.props.csvtype}_file`;
+        formData.append(inputName, this.state.selectedFile, this.state.selectedFile.name);
 
         Axios.post('http://127.0.0.1:8000/api/files', formData).then(res => {
             console.log('response = ', res);
         }).catch(err => {
             console.log('__> JULIUS_ERROR: ', err);
         });
+
+        let debug = 1;
     }
 
     render() {
         return (
             <div>
                 <form>
-
-                    <input type="file" onChange={this.fileSelectedHandler} name="people_file"/>
+                    <input type="file" onChange={this.fileSelectedHandler}/>
                     <button onClick={this.fileUploadHandler}>upload</button>
                 </form>
             </div>

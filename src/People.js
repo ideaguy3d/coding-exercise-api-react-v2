@@ -12,7 +12,7 @@ class People extends Component {
                     <span role="img" aria-label="logo">🙋‍♂️🙋‍♀️</span>
                     People CSV
                 </Header>
-                <BreezeUpload/>
+                <BreezeUpload csvtype="people"/>
                 <ResultsList/>
             </div>
         )

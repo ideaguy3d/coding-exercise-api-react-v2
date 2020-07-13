@@ -9,10 +9,9 @@ class Group extends Component {
             <div>
                 <br/>
                 <Header as="h3">
-                    <span role="img" aria-label="logo">👩‍🦳👴👱‍♀️👱‍♂️🧔</span>
-                    Groups CSV
+                    Groups CSV <span role="img" aria-label="logo">👩‍🦳👴👱‍♀️👱‍♂️🧔</span>
                 </Header>
-                <BreezeUpload/>
+                <BreezeUpload csvtype="groups"/>
                 <GroupsList/>
             </div>
         );
