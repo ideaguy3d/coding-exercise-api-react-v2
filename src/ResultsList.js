@@ -14,7 +14,7 @@ class ResultsList extends Component {
     }
 
     render() {
-        var data = this.state.data || [];
+        let data = this.state.data || [];
 
         return (
             <Table celled padded>

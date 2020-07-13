@@ -1,14 +1,13 @@
 import React, {Component} from 'react';
 
-class About extends Component {
-
+class Group extends Component {
     render() {
         return (
             <div>
-                <h1>About the app</h1>
+                <h1>Group CSV view</h1>
             </div>
         );
     }
 }
 
-export default About;
+export default Group;
