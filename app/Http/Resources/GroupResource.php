@@ -9,12 +9,15 @@ class GroupResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return array
      */
-    public function toArray($request)
-    {
+    public function toArray($request) {
         //parent::toArray($request);
-        return ['group_name' => $this->group_name,];
+        return [
+            'group_name' => $this->group_name,
+            'members' => $this->members,
+        ];
     }
 }

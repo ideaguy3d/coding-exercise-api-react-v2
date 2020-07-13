@@ -6,16 +6,63 @@ use App\Group;
 use App\Http\Resources\GroupResource;
 use App\Http\Resources\GroupsCollection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PDO;
 
 class GroupController extends Controller
 {
+    private $pdo;
+    
+    public function __construct() {
+        $this->pdo = new PDO('mysql:dbname=laravel;host=localhost', 'root', '', [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        ]);
+        
+    }
+    
+    public function __destruct() {
+        unset($pdo);
+    }
+    
     /**GET "a list of records"
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * return \Illuminate\Http\Response
      */
     public function index() {
-        return new GroupsCollection(Group::all());
+        /*$res = DB::table('groups')
+                 ->join('people', 'groups.id', '=', 'people.group_member_id')
+                 ->select('groups.group_name', 'people.first_name', 'people.last_name')
+                 ->get();*/
+        $q = <<<sql
+select g.id as group_id, g.group_name, p.full_name
+from people p inner join `groups` g on p.group_member_id = g.id;
+sql;
+        
+        $r = $this->pdo->prepare($q);
+        $r->execute();
+        $r = $r->fetchAll();
+        
+        $groupBy = [];
+        $group = 'group_name';
+        $full = 'full_name';
+        foreach($r as $i => $val) {
+            $key = $val[$group];
+            
+            if(isset($groupBy[$key])) {
+                $groupBy[$key]['members'] []= $val[$full];
+            }
+            else {
+                $groupBy[$key][$group] = $key;
+                //$groupBy[$key]['members'] = $val[$full] . ', ';
+                $groupBy[$key]['members'] = [$val[$full]];
+            }
+        }
+        
+        //dd($groupBy);
+        
+        return new GroupsCollection(array_values($groupBy));
     }
     
     /**CREATE

@@ -24,8 +24,22 @@ class GroupsList extends Component {
                             <List.Item key={index}>
                                 <List.Icon name='group'/>
                                 <List.Content>
-                                    <List.Header>{group.group_name}</List.Header>
-                                    Members:
+                                    <List.Header as="h3">{group.group_name}</List.Header>
+                                    {
+                                        group.members.map((name, index2) => {
+                                            return (
+                                                <List.Item key={index2}>
+                                                    <List.Content>
+                                                        <List.Header>
+                                                            <List.Icon name='user circle' />
+                                                            {name}
+                                                        </List.Header>
+                                                    </List.Content>
+                                                </List.Item>
+                                            );
+                                        })
+                                    }
+
                                 </List.Content>
                             </List.Item>
                         );
