@@ -31,10 +31,14 @@ class GroupController extends Controller
      * return \Illuminate\Http\Response
      */
     public function index() {
-        /*$res = DB::table('groups')
-                 ->join('people', 'groups.id', '=', 'people.group_member_id')
-                 ->select('groups.group_name', 'people.first_name', 'people.last_name')
-                 ->get();*/
+        /*
+        // 1st attempt, I couldn't figure out how to convert this to
+        // an array or a spl data structure
+        $res = DB::table('groups')
+             ->join('people', 'groups.id', '=', 'people.group_member_id')
+             ->select('groups.group_name', 'people.first_name', 'people.last_name')
+             ->get();
+        */
         $q = <<<sql
 select g.id as group_id, g.group_name, p.full_name
 from people p right join `groups` g on p.group_member_id = g.id;
