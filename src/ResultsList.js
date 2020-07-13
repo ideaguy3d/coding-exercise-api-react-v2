@@ -28,7 +28,6 @@ class ResultsList extends Component {
                 </Table.Header>
 
                 <Table.Body>
-
                     {
                         data.map((person, index) => {
                             return (

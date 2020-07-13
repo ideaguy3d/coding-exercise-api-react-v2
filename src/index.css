@@ -23,3 +23,25 @@ form.breeze.ui.form {
 .breeze.ui.icon.header:first-child {
     margin-top: 2.5%;
 }
+
+nav.breeze {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    min-height: 10vh;
+    background: #434343;
+    color: white;
+
+}
+
+nav.breeze > h3 {
+    margin-top: 1rem;
+}
+
+.nav-links {
+    width: 50%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style: none;
+}

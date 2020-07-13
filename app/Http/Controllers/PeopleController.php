@@ -28,14 +28,12 @@ class PeopleController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request) {
-        $request->validate([
+        $person = Person::create($request->validate([
             'first_name' => 'required|max:255',
             'last_name' => 'required|max:255',
             'email_address' => 'required|email',
             'status' => Rule::in(['active', 'archived']),
-        ]);
-        
-        $person = Person::create($request->all());
+        ]));
         
         return (new PersonResource($person))
             ->response()

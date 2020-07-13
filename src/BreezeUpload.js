@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import Axios from 'axios';
 import {Segment, Header, Icon, Form} from 'semantic-ui-react'
 
-class BreezeUpload1stAttempt extends Component {
+class BreezeUpload extends Component {
     state = {
         selectedFile: null
     }
@@ -41,4 +41,4 @@ class BreezeUpload1stAttempt extends Component {
     }
 }
 
-export default BreezeUpload1stAttempt;
+export default BreezeUpload;

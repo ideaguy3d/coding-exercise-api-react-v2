@@ -13,5 +13,7 @@ class ProjectController
     
     public function store() {
         Projects::create(request(['title', 'description']));
+        
+        return redirect('/projects');
     }
 }

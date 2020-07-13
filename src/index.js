@@ -1,17 +1,20 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Container, Header } from "semantic-ui-react";
+import {Container, Header} from "semantic-ui-react";
 
 import ResultsList from "./ResultsList";
 import BreezeUpload from "./BreezeUpload";
+import Nav from './Nav';
+import About from './About';
 import './index.css';
 
-const App = ({ children }) => (
-  <Container style={{ margin: 20 }}>
-    <Header as="h3"><span role="img" aria-label="logo">⛵️</span> Breeze Church Management </Header>
-    <BreezeUpload/>
-    {children}
-  </Container>
+const App = ({children}) => (
+    <Container style={{margin: 20}}>
+        <Nav/>
+        {/*<Header as="h3"><span role="img" aria-label="logo">⛵️</span> Breeze Church Management </Header>*/}
+        <BreezeUpload/>
+        {children}
+    </Container>
 );
 
 const styleLink = document.createElement("link");
@@ -20,8 +23,8 @@ styleLink.href = "https://cdn.jsdelivr.net/npm/semantic-ui/dist/semantic.min.css
 document.head.appendChild(styleLink);
 
 ReactDOM.render(
-  <App>
-    <ResultsList />
-  </App>,
-  document.getElementById("root")
+    <App>
+        <ResultsList/>
+    </App>,
+    document.getElementById("root")
 );

@@ -7,7 +7,7 @@ use PDO;
 
 class FilesController extends Controller
 {
-    private static $filesFolderPath = '../storage/app/';
+    private static $peopleFilesFolderPath = '../storage/app/people_files/';
     
     /**
      * Display a listing of the resource.
@@ -93,6 +93,7 @@ class FilesController extends Controller
     
     /**
      * bulk insert in batches of 1,000 records
+     *
      * @param string $csvFile
      */
     private function bulkUploadToDb(string $csvFile) {
@@ -103,7 +104,7 @@ class FilesController extends Controller
             
             // cache header fow
             $headerRow = $data[0];
-    
+            
             // OUTER_LOOP: O(n)
             // space_time_analysis = ~O(1000n)
             foreach($batch as $data) {
@@ -113,7 +114,7 @@ class FilesController extends Controller
                 foreach($data as $i => $datum) {
                     //skip the header row
                     if(0 === $i) continue;
-        
+                    
                     // deal with column order
                     $datum = array_combine($headerRow, $datum);
                     $first = $datum['first_name'];
@@ -121,17 +122,17 @@ class FilesController extends Controller
                     $email = $datum['email_address'];
                     $status = $datum['status'];
                     $datum = [$first, $last, $email, $status];
-        
+                    
                     // wrap in single 'quotes'
-                    $datum = array_map(function($e){return "'$e'";}, $datum);
-        
+                    $datum = array_map(function($e) { return "'$e'"; }, $datum);
+                    
                     $q .= ('(' . implode(', ', $datum) . '),');
                 }
             }
             
             // remove the trailing ','
             $q = substr($q, 0, strlen($q) - 1);
-       
+            
             $pdo = new PDO('mysql:dbname=laravel;host=localhost', 'root', '');
             
             // use a prepared statement
@@ -147,11 +148,13 @@ class FilesController extends Controller
     }
     
     public function debug() {
-        $fullPathToCsvFolder = 'C:\Users\ideaguy3d\Documents\coding-exercise-api-react-v2\storage\app\people_files';
-        $csvFileName = 'T6UwKU6KnrG3QpSRZJ6SVe7TDcH3YMQAiDJHlOR2.txt';
-        
+        $fullPath = 'C:\Users\ideaguy3d\Documents\coding-exercise-api-react-v2\storage\app\people_files';
+        $relPath = self::$peopleFilesFolderPath;
+        $csvFileName = 'debug.txt';
+        $path = $relPath . $csvFileName;
+        //dd($path);
         // manually give a csv file name that got uploaded from React
-        $this->bulkUploadToDb("$fullPathToCsvFolder\\$csvFileName");
+        $this->bulkUploadToDb($csvFileName);
     }
     
     /**
@@ -162,7 +165,8 @@ class FilesController extends Controller
     public static function csvToArray(string $csvFile): array {
         $csv = [];
         $count = 0;
-        $csvFile = self::$filesFolderPath . $csvFile;
+        $csvFile = self::$peopleFilesFolderPath . $csvFile;
+        //dd(getcwd() . "\n" . $csvFile);
         if(($handle = fopen($csvFile, 'r')) !== false) {
             while(($data = fgetcsv($handle, 8096, ",")) !== false) {
                 $csv[$count] = $data;
