@@ -34,8 +34,7 @@ class BreezeUpload extends Component {
         return (
             <div>
                 <form>
-                    <br/>
-                    <Header as="h3"><span role="img" aria-label="logo">🙋‍♂️🙋‍♀️</span> People CSV </Header>
+
                     <input type="file" onChange={this.fileSelectedHandler} name="people_file"/>
                     <button onClick={this.fileUploadHandler}>upload</button>
                 </form>
