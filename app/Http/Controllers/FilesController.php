@@ -137,6 +137,7 @@ class FilesController extends Controller
             
             // use a prepared statement
             $this->pdo->prepare($q)->execute();
+            $this->pdo->prepare('call concat_first_last();')->execute();
             $message = __METHOD__ . ', line: ' . __LINE__ . '__>> successfully inserted data';
             Log::info($message);
             echo $message;

@@ -37,7 +37,7 @@ class GroupController extends Controller
                  ->get();*/
         $q = <<<sql
 select g.id as group_id, g.group_name, p.full_name
-from people p inner join `groups` g on p.group_member_id = g.id;
+from people p right join `groups` g on p.group_member_id = g.id;
 sql;
         
         $r = $this->pdo->prepare($q);
